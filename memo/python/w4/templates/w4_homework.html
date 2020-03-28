@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Webpage Title -->
+  <title>Hello, world!</title>
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <!-- JS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+  <!-- google web font -->
+  <link href="https://fonts.googleapis.com/css?family=Nanum+Brush+Script|Noto+Sans+KR&display=swap" rel="stylesheet">
+
+  <!-- custom CSS setting -->
+  <style>
+    body {
+      font-family: 'Nanum Brush Script', cursive;
+    }
+
+    .ceiling_area {
+      padding: 20px;
+    }
+
+    .product_image {
+      width: 500px;
+      margin: auto;
+      padding: 25px;
+      border: 3px solid black;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /*
+        width: 1000px;
+        margin: auto;
+        font-family: 'Nanum Brush Script', cursive; */
+
+      /* displauy flex setting */
+      /* display: flex; */
+      /* flex-direction: column; */
+      /* align-items: center; */
+      /* justify-content: space-around;  */
+
+      /* width: 500px;
+        margin: auto;
+        padding: 25px;
+
+        border: 3px solid black;
+        font-weight: bold; */
+    }
+
+    .product_title {
+      width: 500px;
+      margin: auto;
+      padding: 10px;
+      border: 3px solid green
+    }
+
+    .order_area {
+      width: 500px;
+      margin: auto;
+      padding: 10px;
+      border: 3px solid grey;
+    }
+
+    .order_button_area {
+      width: 500px;
+      margin: auto;
+      padding: 10px;
+      border: 3px solid black;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+    }
+
+    .order_list {
+      width: 500px;
+      margin: auto;
+      padding: 10px;
+      border: 3px solid green;
+    }
+
+    #test{
+      display: flex;
+      flex-direction: center;
+      /* align-items: center; */
+
+    }
+  </style>
+
+  <script>
+    $(document).ready(function() {
+      $('#order_list_custom').html('');
+      listing();
+    });
+
+
+    function click_func(){
+      let order_name = $('#order_name').val()
+      let order_quantity = $('#order_quantity').val()
+      let order_address = $('#order_address').val()
+      let order_number = $('#order_number').val()
+
+      let tt = [order_name, order_quantity, order_address, order_number]
+      let t_focus = ['#order_name', '#order_quantity', '#order_address', '#order_number']
+      let alert_list = ['주문자 이름을 입력해주세요', '수량을 입력해주세요', '주소를 입력해주세요', '전화번호를 입력해주세요']
+
+
+      let check_bool = 0
+      for(let i=0; i<4; i++){
+        if(tt[i]==''){
+          alert(alert_list[i])
+          check_bool = 1
+          $(t_focus[i]).focus()
+          break
+        }
+      }
+
+      if(check_bool==0){
+        $.ajax({
+          type: "POST",
+          url: "/orders",
+          data: {'name': order_name, 'quantity': order_quantity, 'address': order_address, 'phone_number': order_number},
+          success: function (response){
+            if(response['result']=='success'){
+              alert(response['msg']);
+              $('#order_name').val('');
+              $('#order_quantity').val('');
+              $('#order_address').val('');
+              $('#order_number').val('');
+              window.location.reload();
+            }
+          }
+        })
+      }
+    }
+
+// GET 서버통신 이후 listing 하는 방식
+    function listing(){
+      console.log(1)
+      $.ajax({
+        type: "GET",
+        url: "/orders",
+        data: {},
+        success: function (response){
+          if(response['result']=='success'){
+            let orders = response['orders'];
+            for (let i=0; i<orders.length; i++){
+              make_order_list(orders[i]['name'], orders[i]['quantity'], orders[i]['address'], orders[i]['phone_number']);
+            }
+          } else {
+            alert('주문 목록을 받아오지 못했습니다');
+          }
+        }
+      })
+    }
+
+    function make_order_list(name, quantity, address, phone_number){
+      let temp_html = '<tr>\
+                          <td>' + name + '</td>\
+                          <td>' + quantity + '</td>\
+                          <td>' + address + '</td>\
+                          <td>' + phone_number + '</td>\
+                       </tr>';
+      $('#order_list_custom').append(temp_html);
+    }
+
+  </script>
+
+</head>
+
+<body>
+  <div class='ceiling_area'></div>
+  <div class='product_image'>
+    <img
+      src="https://thumbnail12.coupangcdn.com/thumbnails/remote/230x230ex/image/retail/images/2019/11/07/18/8/4febc558-85b2-48a8-816e-0940180702df.jpg"
+      alt="My Image">
+  </div>
+
+  <div class='product_title'>
+    <span style="font-size: 50px">에어팟 프로</span>
+    <span>가격: 300,000 원 /개 </span>
+    <div>
+      이 상품은 에어팟 프로입니다.
+    </div>
+  </div>
+
+  <div class='order_area'>
+    <div style="font-size: 50px">주문하기</div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">주문자 이름</span>
+      </div>
+      <input id='order_name' type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="order_quantity">수량</label>
+      </div>
+      <select class="custom-select" id="order_quantity">
+        <option selected>수량을 선택하세요</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">주소</span>
+      </div>
+      <input id='order_address' type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">전화번호</span>
+      </div>
+      <input id='order_number' type="text" class="form-control" placeholder="000-0000-0000" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+  </div>
+
+  <div class='order_button_area'>
+    <button onclick="click_func()" id="order-check" class="btn btn-primary" type="submit">주문하기</button>
+  </div>
+
+  <div class='order_list'>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">이름</th>
+          <th scope="col">수량</th>
+          <th scope="col">주소</th>
+          <th scope="col">전화번호</th>
+        </tr>
+      </thead>
+      <tbody id="order_list_custom">
+      </tbody>
+    </table>
+
+  </div>
+
+
+</body>
+
+</html>
