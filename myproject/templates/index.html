@@ -26,10 +26,13 @@
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
 
+    <!-- JQuery를 import 합니다 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
     <!-- google web font -->
     <link href="https://fonts.googleapis.com/css?family=Nanum+Brush+Script|Noto+Sans+KR&display=swap" rel="stylesheet">
-
-
 
 
     <style>
@@ -59,69 +62,28 @@
     </style>
 
     <script>
-        $(document).ready(function () {
-            // index.html 로드가 완료되면 자동으로 show_star() 함수를 호출합니다.
-            // $('#star-box').html('');
-            basic_html();
-        });
-
-
-
-        function home_func() {
-            let temp_html = '\
-                <img class="img-thumbnail" src="https://st2.depositphotos.com/2605379/7469/i/950/depositphotos_74690631-stock-photo-blank-diary-and-coffee-cup.jpg" alt="My Image">\
-                <div class="home-description">\
-                <h2 sytle="fond-size:20px">다이어리</h2>\
-                <h4>\
-                    나만의 다이어리 공간입니다.\
-                <br>\
-                    여기에 하루를 기록하세요.\
-                <br>\
-                    하루가 모여 한달이, 일년이, 인생이 그려집니다.\
-                </h4>\
-                </div>'
-
-            $('.body-area').empty();
-            $('.body-area').append(temp_html);
-
-        }
+        // $(document).ready(function () {
+        //     // index.html 로드가 완료되면 자동으로 show_star() 함수를 호출합니다.
+        //     // $('#star-box').html('');
+        //     basic_html();
+        // });
 
         function today_func() {
-            alert('오늘 하루');
-            let temp_html = '\
-                <img class="img-thumbnail" src="https://st2.depositphotos.com/2605379/7469/i/950/depositphotos_74690631-stock-photo-blank-diary-and-coffee-cup.jpg" alt="My Image">\
-                <div class="home-description">\
-                <h2 sytle="fond-size:20px">다이어리</h2>\
-                <h4>\
-                    나만의 다이어리 공간입니다.\
-                <br>\
-                    여기에 하루를 기록하세요.\
-                <br>\
-                    하루가 모여 한달이, 일년이, 인생이 그려집니다.\
-                </h4>\
-                </div>'
-
-
-            $('.body-area').empty();
-            $('.body-area').append(temp_html);
-
-        }
-
-
-        function like_star(name) {
+            // 우리가 크롬 콘솔창에서 썼던 그 코드!
             $.ajax({
-                type: 'POST',
-                url: '/api/like',
-                data: { 'name_give': name },
-                success: function (response) {
+                type: "GET", // GET 방식으로 요청하겠다.
+                url: "/today", // /today라는 url에 요청하겠다.
+                data: {}, // 데이터를 주는 방법
+                success: function (response) { // 성공하면
                     if (response['result'] == 'success') {
-                        alert('ddd')
-                        window.location.reload()
+                        alert('포스팅 성공!');
+                        // window.location.reload();
+                    } else {
+                        alert('서버 오류!')
                     }
                 }
-            });
+            })
         }
-
 
     </script>
 </head>
@@ -136,9 +98,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="#" onclick="home_func()">Home <span
+                    <a class="nav-item nav-link active" href="index.html">Home <span
                             class="sr-only">(current)</span></a>
-                    <a class="nav-item nav-link" href="#" onclick="today_func()" id='test'>오늘 하루</a>
+                    <a class="nav-item nav-link" href="today.html">오늘 하루</a>
                     <a class="nav-item nav-link" href="#" onclick="calendar_func()">캘린더</a>
                     <a class="nav-item nav-link" href="#" onclick="lifegraph_func()">인생그래프</a>
                     <a class="nav-item nav-link" href="#" onclick="my_emotion_func()">나의 감정</a>
@@ -147,9 +109,12 @@
         </nav>
     </div>
 
-    <!-- <div class='body-area'>
-        <img class="img-thumbnail" src="https://st2.depositphotos.com/2605379/7469/i/950/depositphotos_74690631-stock-photo-blank-diary-and-coffee-cup.jpg" alt="My Image">
-        <div class='home-description'>
+
+    <div class='body-area'>
+        <img class="img-thumbnail"
+            src="https://st2.depositphotos.com/2605379/7469/i/950/depositphotos_74690631-stock-photo-blank-diary-and-coffee-cup.jpg"
+            alt="My Image">
+        <div class="home-description">
             <h2 sytle="fond-size:20px">다이어리</h2>
             <h4>
                 나만의 다이어리 공간입니다.
@@ -157,52 +122,10 @@
                 여기에 하루를 기록하세요.
                 <br>
                 하루가 모여 한달이, 일년이, 인생이 그려집니다.
-
             </h4>
         </div>
-    </div> -->
 
-    <div class='body-area'>
-        <form>
-            <div class="form-group">
-                <label for="exampleFormControlInput1">Email address</label>
-                <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-            </div>
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Example select</label>
-                <select class="form-control" id="exampleFormControlSelect1">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="exampleFormControlSelect2">Example multiple select</label>
-                <select multiple class="form-control" id="exampleFormControlSelect2">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="exampleFormControlTextarea1">Example textarea</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-            </div>
-            <div class="form-group row">
-                <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10">
-                    <input type="text" readonly class="form-control-plaintext" id="staticEmail"
-                        value="email@example.com">
-                </div>
-            </div>
-        </form>
     </div>
-
-
 
 
 </body>
