@@ -20,24 +20,53 @@ def home_func():
 def today_func():
     return render_template('today.html')
 
-@app.route('/api/memo', methods=['POST'])
+@app.route('/calendar.html')
+def calendar_func():
+    return render_template('calendar.html')
+
+@app.route('/lifegraph.html')
+def lifegraph_func():
+    return render_template('lifegraph.html')
+
+@app.route('/my_emotion.html')
+def my_emotion_func():
+    return render_template('my_emotion.html')
+
+
+@app.route('/api/memo/save', methods=['POST'])
 def save_memo():
+    selected_date = request.form['date']
     doc = {
-        'date': str(date.today()),
+        'date': selected_date,
         'emotion_index': request.form['emotion_index'],
         'emotion_keyword': request.form['emotion_keyword'],
         'keyword': request.form['keyword'],
         'one_sentence': request.form['one_sentence'],
         'comment': request.form['comment']
     }
-    db.project_diary.update_one({'date': str(date.today())}, {'$set': doc}, upsert=True)
+    db.project_diary.update_one({'date': selected_date}, {'$set': doc}, upsert=True)
     return jsonify({'result': 'success'})
 
 
-@app.route('/api/memo', methods=['GET'])
+@app.route('/api/memo/load', methods=['POST'])
 def load_memo():
-    today_memo = db.project_diary.find_one({'date': str(date.today())}, {'_id': 0})
-    return jsonify({'result': 'success', 'today_memo': today_memo})
+    ### GET 방식에서는 url 파싱으로 정보 획득 가능함.
+    # date_selected = request.url.split('?date=')[1]
+    date_selected = request.form['date']
+    date_memo = db.project_diary.find_one({'date': date_selected}, {'_id': 0})
+
+    return jsonify({'result': 'success', 'date_memo': date_memo})
+
+@app.route('/api/memo/delete', methods=['POST'])
+def delete_memo():
+    date_selected = request.form['date']
+    check_memo = db.project_diary.find_one({'date': date_selected}, {'_id': 0})
+
+    db.project_diary.delete_one({'date': date_selected})
+    return jsonify({'result': 'success', 'check': check_memo})
+
+
+
 
 #
 # # API 역할을 하는 부분
