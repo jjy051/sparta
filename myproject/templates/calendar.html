@@ -37,216 +37,87 @@
 
     <style>
         body {
+            /* margin: 3px; */
             border: 3px solid black;
             font-family: 'Nanum Brush Script', cursive;
         }
 
         .head-area {
-            /* border: 3px solid black; */
-        }
+            margin: 3px;
+            border: 3px solid black;
 
-        .body-today-area {
-            /* border: 3px solid black; */
         }
 
         .body-area {
-            /* border: 3px solid black; */
-        }
-
-        /* .head-area {
-            width: 500px;
-            margin: auto;
-            padding: 25px;
+            margin: 3px;
             border: 3px solid black;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border text-align: center;
-        } */
+        }
     </style>
 
     <script>
-        $(document).ready(function () {
-            // index.html 로드가 완료되면 자동으로 show_star() 함수를 호출합니다.
-            // $('#star-box').html('');
-            basic_today_reset()
-        });
+        var today = new Date();//오늘 날짜
 
-        function basic_today_reset() {
-            let today = new Date()
-            let string_today = String(today.getFullYear()) + '-' +
-                String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                String(today.getDate()).padStart(2, '0')
-
-            date_reset(string_today)
+        function prevClaendar() {//이전 달력
+            today = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+            buildCalendar();
         }
 
-        function date_reset(string_date) {
-            let temp_html = '\
-                <div class="input-group mb-3">\
-                    <div class="input-group-prepend">\
-                        <label class="input-group-text" for="order_quantity" id="basic-addon1">날짜</label>\
-                    </div>\
-                    <input type="text" id="date-selected" class="form-control" aria-label="Username"\
-                    aria-describedby="basic-addon1" value=' + string_date + '>\
-                </div>'
-
-            $('.body-today-area').html('')
-            $('.body-today-area').append(temp_html)
+        //다음 달력을 오늘을 저장하고 달력에 뿌려줌
+        function nextCalendar() {
+            today = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+            buildCalendar();
         }
 
-        function click_load() {
-            let date_selected = $('#date-selected').val()
-            if (date_selected == '') {
-                alert('불러오려는 날짜를 입력하세요')
-                return
+        function buildCalendar() {
+            var nMonth = new Date(today.getFullYear(), today.getMonth(), 1);// 이번달의 첫번째날
+            var lastDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);//이번달의 마지막날
+            var tblCalendar = document.getElementById("calendar");    //테이블 달력을 만드는 테이블
+            var tblCalendarYM = document.getElementById("calendarYM"); ///XXXX년도XX월 출력
+            tblCalendarYM.innerHTML = today.getFullYear() + "년" + (today.getMonth() + 1) + "월";
+
+            //기존에 테이블에 잇던 달력 내용 삭제
+            while (tblCalendar.rows.length > 2) {
+                tblCalendar.deleteRow(tblCalendar.rows.length - 1);
             }
+            var row = null;
+            row = tblCalendar.insertRow();
+            var cnt = 0;
+            // 1일이 시작되는 칸을 맞추어줌
+
+            for (i = 0; i < nMonth.getDay(); i++) {
+                cell = row.insertCell();
+                cnt = cnt + 1;
+            }
+            //달력 출력
+            for (i = 1; i <= lastDate.getDate(); i++) {
+                cell = row.insertCell();
+                cell.innerHTML = i;
+                cnt = cnt + 1;
+                if (cnt % 7 == 0)    //1주=7일
+                    row = calendar.insertRow();
+            }
+
+            let load_year_month = String(today.getFullYear()) + '-' + String(today.getMonth() + 1).padStart(2, '0')
+            var prev_cell_num = nMonth.getDay() - 1
+            var target_num = 0
 
             $.ajax({
                 type: 'POST',
-                url: '/api/memo/load',
-                data: { 'date': date_selected },
+                url: '/api/calendar/load',
+                data: { 'year_month': load_year_month },
                 success: function (response) {
-                    if (response['date_memo'] == null) {
-                        alert('불러오려는 날짜의 다이어리가 없습니다')
-                    } else {
-                        memo_reset(response['date_memo'])
+                    let month_diary = response['month_diary']
+
+                    for (i = 0; i < month_diary.length; i++) {
+                        target_num = prev_cell_num + parseInt(month_diary[i]['day'])
+                        target_cell = tblCalendar.rows[parseInt(target_num / 7)].cells[target_num % 7]
+                        target_cell.innerHTML = target_cell.innerHTML + 
+                            "<br>" + month_diary[i]['emotion_index']
+
                     }
                 }
             })
         }
-
-        function memo_reset(today_memo) {
-            let temp_html = '\
-                <div class="input-group mb-3">\
-                    <div class="input-group-prepend">\
-                        <span class="input-group-text" id="basic-addon1">감성 지수</span>\
-                    </div>\
-                    <select class="custom-select" id="emotion-index">\
-                        <option selected>' + today_memo['emotion_index'] + '</option>\
-                        <option value="1">1</option>\
-                        <option value="2">2</option>\
-                        <option value="3">3</option>\
-                        <option value="4">4</option>\
-                        <option value="5">5</option>\
-                        <option value="6">6</option>\
-                        <option value="7">7</option>\
-                        <option value="8">8</option>\
-                        <option value="9">9</option>\
-                        <option value="10">10</option>\
-                    </select>\
-                </div >\
-                \
-                <div class="input-group mb-3">\
-                    <div class="input-group-prepend">\
-                        <label class="input-group-text" for="order_quantity" id="basic-addon1">감성 키워드</label>\
-                    </div>\
-                    <input id="emotion-keyword" type="text" class="form-control" placeholder="행복, 슬픔, 화남" aria-label="Username"\
-                        aria-describedby="basic-addon1"' + ' value="' + today_memo['emotion_keyword'] + '">\
-                </div>\
-                \
-                <div class="input-group mb-3">\
-                    <div class="input-group-prepend">\
-                        <span class="input-group-text" id="basic-addon1">키워드</span>\
-                    </div>\
-                    <input id="keyword" type="text" class="form-control" placeholder="스파르타코딩클럽, 재택근무, 토요일" aria-label="Username"\
-                        aria-describedby="basic-addon1"' + ' value="' + today_memo['keyword'] + '">\
-                </div>\
-                \
-                <div class="input-group mb-3">\
-                    <div class="input-group-prepend">\
-                        <span class="input-group-text" id="basic-addon1">한줄평</span>\
-                    </div>\
-                    <input id="one-sentence" type="text" class="form-control" placeholder="좋은 하루였다" aria-label="Username"\
-                        aria-describedby="basic-addon1"' + ' value="' + today_memo['one_sentence'] + '">\
-                </div>\
-                \
-                <div class="form-group">\
-                    <div class="input-group-prepend">\
-                        <span class="input-group-text" id="basic-addon1">오늘 하루 있었던 일들</span>\
-                    </div>\
-                    <textarea class="form-control" id="comment" rows="5" placeholder="삭제시 삭제라고 입력하고 아래 버튼을 클릭하세요">' + today_memo['comment'] + '</textarea>\
-                </div>\
-                \
-                <div class="order_button_area">\
-                    <button onclick="click_save()" id="order-check" class="btn btn-primary" type="submit">저장 (수정)</button>\
-                    <button onclick="click_load()" class="btn btn-primary" type="submit">내가 쓴 글 불러오기</button>\
-                    <button onclick="click_delete()" id="order-check" class="btn btn-primary" type="submit">삭제하기</button>\
-                </div>'
-
-            $('.body-area').html('')
-            $('.body-area').append(temp_html)
-        }
-
-
-        function click_save() {
-            let date_selected = $('#date-selected').val()
-            let emotion_index = $('#emotion-index').val()
-            let emotion_keyword = $('#emotion-keyword').val()
-            let keyword = $('#keyword').val()
-            let one_sentence = $('#one-sentence').val()
-            let comment = $('#comment').val()
-
-            if (emotion_index == '오늘 나의 기분은?') {
-                emotion_index = ''
-            }
-
-            let tt = [date_selected, emotion_index, emotion_keyword, keyword, one_sentence]
-            let tt_focus = ['#date-selected', '#emotion-index', '#emotion-keyword', '#keyword', '#one-sentence']
-            let alert_list = ['날짜를 입력해주세요', '감성 지수를 입력해주세요', '감성 키워드를 입력해주세요', '키워드를 입력해주세요', '한줄평을 입력해주세요']
-
-            for (let i = 0; i < 5; i++) {
-                if (tt[i] == '') {
-                    alert(alert_list[i])
-                    $(tt_focus[i]).focus()
-                    return
-                }
-            }
-            $.ajax({
-                type: 'POST',
-                url: '/api/memo/save',
-                data: {
-                    'date': date_selected, 'emotion_index': emotion_index, 'emotion_keyword': emotion_keyword,
-                    'keyword': keyword, 'one_sentence': one_sentence, 'comment': comment
-                },
-                success: function (response) {
-                    if (response['result'] == 'success') {
-                        alert('성공적으로 저장되었습니다!')
-                        // window.location.reload()
-                    }
-                }
-            })
-        }
-
-        function click_delete() {
-            let comment = $('#comment').val()
-            let date_deleted = $('#date-selected').val()
-
-            if (date_deleted == '') {
-                alert('삭제하려는 날짜를 입력해주세요')
-                return
-            }
-
-            if (comment == '삭제') {
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/memo/delete',
-                    data: { 'date': date_deleted },
-                    success: function (response) {
-                        if (response['check'] == null) {
-                            alert('삭제하려는 날짜의 다이어리가 없습니다')
-                        } else {
-                            alert('성공적으로 삭제되었습니다!')
-                        }
-                        // window.location.reload()
-                    }
-                })
-            }
-            else {
-                alert("'삭제'를 '오늘 하루 있었던 일들'에 입력해주세요")
-            }
-        }
-
 
 
     </script>
@@ -256,7 +127,7 @@
 <body>
     <div class='head-area'>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#" \ style="color: gray">Dairy</a>
+            <a class="navbar-brand" href="#" \ style="color: gray">Diary</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
                 aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -273,74 +144,36 @@
         </nav>
     </div>
 
-    <div class='body-today-area'>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="order_quantity" id="basic-addon1">날짜</label>
-            </div>
-            <input type="text" class="form-control" id="date-selected" aria-label="Username"
-                aria-describedby="basic-addon1" placeholder='2020-04-12'>
-        </div>
-    </div>
-
     <div class='body-area'>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">감성 지수</span>
-            </div>
-            <select class="custom-select" id="emotion-index">
-                <option selected>오늘 나의 기분은?</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-            </select>
-        </div>
+        <table id="calendar" border="3" align="center" width="800" height="500">
+            <tr>
+                <td align="center"> <label onclick="prevClaendar()">
+                        < </label>
+                </td>
+                <td colspan="5" align="center" id="calendarYM">yyyy년 m월</td>
+                <td align="center"> <label onclick="nextCalendar()">></label> </td>
+            </tr>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="order_quantity" id="basic-addon1">감성 키워드</label>
-            </div>
-            <input id="emotion-keyword" type="text" class="form-control" placeholder="행복, 슬픔, 화남" aria-label="Username"
-                aria-describedby="basic-addon1">
-        </div>
+            <tr align="center">
+                <td>일</td>
+                <td>월</td>
+                <td>화</td>
+                <td>수</td>
+                <td>목</td>
+                <td>금</td>
+                <td>토</td>
+            </tr>
+        </table>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">키워드</span>
-            </div>
-            <input id="keyword" type="text" class="form-control" placeholder="스파르타코딩클럽, 재택근무, 토요일" aria-label="Username"
-                aria-describedby="basic-addon1">
-        </div>
+        <script>
+            buildCalendar();
+        </script>
 
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">한줄평</span>
-            </div>
-            <input id="one-sentence" type="text" class="form-control" placeholder="좋은 하루였다" aria-label="Username"
-                aria-describedby="basic-addon1">
-        </div>
-
-        <div class="form-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">오늘 하루 있었던 일들</span>
-            </div>
-            <textarea class="form-control" id="comment" rows="5" placeholder="삭제시 삭제라고 입력하고 아래 버튼을 클릭하세요"></textarea>
-        </div>
-
-        <div class="order_button_area">
-            <button onclick="click_save()" class="btn btn-primary" type="submit">저장 (수정)</button>
-            <button onclick="click_load()" class="btn btn-primary" type="submit">내가 쓴 글 불러오기</button>
-            <button onclick="click_delete()" class="btn btn-primary" type="submit">삭제하기</button>
-        </div>
+        </table>
 
     </div>
+
+
 
 
 </body>

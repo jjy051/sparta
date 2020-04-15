@@ -22,7 +22,14 @@ db = client.dbsparta
 # b = a.split('?date=')[1]
 # print(b)
 
-date_selected = '2020-04-13'
-check_memo = db.project_diary.find_one({'date': date_selected}, {'_id': 0})
-print(check_memo)
-db.project_diary.delete_one({'date': date_selected})
+year_month = '2020-04'
+print(year_month)
+print(type(year_month))
+month_diary = list(db.project_diary.find({'year_month': year_month}, {'_id': 0}).sort("date"))
+
+print(type(month_diary[0]))
+print(month_diary[0])
+
+for i in month_diary:
+    print(i)
+# day_list = list(db.project_diary.find({'year_month': year_month}, {'date':1}).sort({'date':1}))
