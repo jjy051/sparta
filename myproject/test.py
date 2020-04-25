@@ -21,15 +21,27 @@ db = client.dbsparta
 # a = "http://localhost:5000/api/memo?date=2020-04-12"
 # b = a.split('?date=')[1]
 # print(b)
+#
+# year_month = '2020-04'
+# print(year_month)
+# print(type(year_month))
+# month_diary = list(db.project_diary.find({'year_month': year_month}, {'_id': 0}).sort("date"))
+#
+# print(type(month_diary[0]))
+# print(month_diary[0])
 
-year_month = '2020-04'
-print(year_month)
-print(type(year_month))
-month_diary = list(db.project_diary.find({'year_month': year_month}, {'_id': 0}).sort("date"))
+graph_data = list(db.project_diary.find({"date": {"$gte": '2020-04-01', "$lt": '2020-04-30'}},
+                                        {"_id": 0, "date": 1, "emotion_index": 1, "emotion_keyword":1, "keyword":1}).sort("date"))
+#
+# for i in graph_data:
+#     print(i)
 
-print(type(month_diary[0]))
-print(month_diary[0])
 
-for i in month_diary:
-    print(i)
+test = graph_data[1]['emotion_keyword']
+a = test.split(',')
+print(test)
+print(a)
+#
+# for i in month_diary:
+#     print(i)
 # day_list = list(db.project_diary.find({'year_month': year_month}, {'date':1}).sort({'date':1}))
