@@ -1,9 +1,15 @@
 from pymongo import MongoClient
 from datetime import *
 from flask import Flask, render_template, jsonify, request
+import json
 app = Flask(__name__)
 
 client = MongoClient('localhost', 27017)
+
+# setting_memo = json.loads(open('credential.json').read())
+# setting_str = 'mongodb://' + setting_memo['id'] + ':' + setting_memo['pwd'] + '@' + setting_memo['ip']
+# client = MongoClient(setting_str, 27017)
+
 db = client.dbsparta
 
 # HTML을 주는 부분

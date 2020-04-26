@@ -188,11 +188,11 @@
                     },
                     animation: {
                         duration: 1,
-                        colors: 'red',
                         onComplete: function () {
                             var chartInstance = this.chart,
                                 ctx = chartInstance.ctx;
                             ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                            ctx.fillStyle = "lightblue";
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'bottom';
 
